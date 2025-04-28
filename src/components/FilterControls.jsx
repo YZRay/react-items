@@ -81,7 +81,7 @@ export default function FilterControls({
           </Form.Group>
         </Col>
         <Col md={6}>
-          <Form.Group controlId="itemsPerPage">
+          <Form.Group controlId="priceRange">
             <Form.Label>價格區間</Form.Label>
             <div className="d-flex align-items-center gap-2">
               <Form.Control

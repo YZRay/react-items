@@ -2,12 +2,14 @@ import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useState, useMemo, Fragment } from "react";
 import FilterControls from "./components/FilterControls";
-import ItemsTable from "./components/ItemsTable";
+import Table from "./components/Table";
 import Pagination from "./components/Pagination";
 import items from "./data/items.json";
+import useDebounce from "./hook/useDebounce";
 
 function App() {
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 300);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [isInStockOnly, setIsInStockOnly] = useState(false);
   const [sortDirection, setSortDirection] = useState("asc");
@@ -19,9 +21,9 @@ function App() {
   const filteredItems = useMemo(() => {
     let result = items;
 
-    if (search.trim()) {
+    if (debouncedSearch.trim()) {
       result = result.filter((item) =>
-        item.name.toLowerCase().includes(search.trim().toLowerCase())
+        item.name.toLowerCase().includes(debouncedSearch.trim().toLowerCase())
       );
     }
 
@@ -42,10 +44,10 @@ function App() {
       );
 
     return result;
-  }, [search, selectedCategories, isInStockOnly, sortDirection]);
+  }, [debouncedSearch, selectedCategories, isInStockOnly, sortDirection]);
 
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
-  const paginated = useMemo(
+  const dataPaginated = useMemo(
     () => filteredItems.slice((page - 1) * itemsPerPage, page * itemsPerPage),
     [filteredItems, page, itemsPerPage]
   );
@@ -63,6 +65,28 @@ function App() {
     setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
     setPage(1);
   };
+
+  const columns = [
+    { title: "名稱", dataIndex: "name" },
+    { title: "類別", dataIndex: "category" },
+    {
+      title: "價格",
+      dataIndex: "price",
+      render: (value) => `$${value}`,
+      onClick: handleSort,
+      style: { cursor: "pointer" },
+      sortIcon: sortDirection === "asc" ? "↑" : "↓",
+    },
+    {
+      title: "庫存狀態",
+      dataIndex: "inStock",
+      render: (value) => (
+        <span style={{ color: value ? "green" : "red" }}>
+          {value ? "有庫存" : "缺貨"}
+        </span>
+      ),
+    },
+  ];
 
   return (
     <Fragment>
@@ -94,11 +118,7 @@ function App() {
 
       <div className="mb-3">共 {filteredItems.length} 筆資料</div>
 
-      <ItemsTable
-        items={paginated}
-        sortDirection={sortDirection}
-        onSort={handleSort}
-      />
+      <Table columns={columns} data={dataPaginated} rowKey="name" />
 
       <Pagination
         currentPage={page}

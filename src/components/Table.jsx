@@ -11,6 +11,7 @@ export default function Table({ columns, data, rowKey = "id" }) {
               key={`${col.dataIndex}-${col.title}`}
               onClick={col.onClick}
               style={col.style}
+              scope="col"
             >
               {col.title}
               {col.sortIcon}
@@ -30,8 +31,8 @@ export default function Table({ columns, data, rowKey = "id" }) {
             </th>
           </tr>
         ) : (
-          data.map((row, i) => (
-            <tr className={tableStyle.tr} key={row[rowKey] ?? i}>
+          data.map((row) => (
+            <tr className={tableStyle.tr} key={row[rowKey]}>
               {columns.map((column, index) => {
                 const Cell = index === 0 ? "th" : "td";
                 return (

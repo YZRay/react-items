@@ -12,6 +12,10 @@ export default function FilterControls({
   onSortChange,
   itemsPerPage,
   onItemsPerPageChange,
+  minPrice,
+  onMinPriceChange,
+  maxPrice,
+  onMaxPriceChange,
 }) {
   return (
     <div className="p-3 rounded-3 border bg-light mb-3">
@@ -74,6 +78,30 @@ export default function FilterControls({
               <option value={50}>每頁 50 筆</option>
               <option value={100}>每頁 100 筆</option>
             </Form.Select>
+          </Form.Group>
+        </Col>
+        <Col md={6}>
+          <Form.Group controlId="itemsPerPage">
+            <Form.Label>價格區間</Form.Label>
+            <div className="d-flex align-items-center gap-2">
+              <Form.Control
+                type="number"
+                placeholder="最低價格"
+                value={minPrice}
+                onChange={(e) => {
+                  onMinPriceChange(e.target.value);
+                }}
+              />
+              <span>~</span>
+              <Form.Control
+                type="number"
+                placeholder="最高價格"
+                value={maxPrice}
+                onChange={(e) => {
+                  onMaxPriceChange(e.target.value);
+                }}
+              />
+            </div>
           </Form.Group>
         </Col>
       </Row>

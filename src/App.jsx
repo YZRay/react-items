@@ -9,12 +9,16 @@ import useDebounce from "./hook/useDebounce";
 
 function App() {
   const [search, setSearch] = useState("");
-  const debouncedSearch = useDebounce(search, 300);
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [isInStockOnly, setIsInStockOnly] = useState(false);
   const [sortDirection, setSortDirection] = useState("asc");
   const [page, setPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
+  const debouncedSearch = useDebounce(search, 300);
+  const debouncedMinPrice = useDebounce(minPrice, 300);
+  const debouncedMaxPrice = useDebounce(maxPrice, 300);
 
   const allCategories = Array.from(new Set(items.map((item) => item.category)));
 
@@ -33,6 +37,13 @@ function App() {
       );
     }
 
+    if (debouncedMinPrice !== "") {
+      result = result.filter((item) => item.price >= Number(debouncedMinPrice));
+    }
+    if (debouncedMaxPrice !== "") {
+      result = result.filter((item) => item.price <= Number(debouncedMaxPrice));
+    }
+
     if (isInStockOnly) {
       result = result.filter((item) => item.inStock);
     }
@@ -44,7 +55,14 @@ function App() {
       );
 
     return result;
-  }, [debouncedSearch, selectedCategories, isInStockOnly, sortDirection]);
+  }, [
+    debouncedSearch,
+    selectedCategories,
+    isInStockOnly,
+    sortDirection,
+    debouncedMinPrice,
+    debouncedMaxPrice,
+  ]);
 
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
   const dataPaginated = useMemo(
@@ -94,6 +112,16 @@ function App() {
         search={search}
         onSearchChange={(e) => {
           setSearch(e.target.value);
+          setPage(1);
+        }}
+        minPrice={minPrice}
+        maxPrice={maxPrice}
+        onMinPriceChange={(value) => {
+          setMinPrice(value);
+          setPage(1);
+        }}
+        onMaxPriceChange={(value) => {
+          setMaxPrice(value);
           setPage(1);
         }}
         allCategories={allCategories}
